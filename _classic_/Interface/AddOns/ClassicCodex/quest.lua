@@ -1,7 +1,8 @@
+local L = LibStub("AceLocale-3.0"):GetLocale("ClassicCodex")
+
 CodexQuest = CreateFrame("Frame")
 
 CodexQuest.queue = {}
-CodexQuest.abandon = ""
 CodexQuest.questLog = {}
 CodexQuest.questLogTemp = {}
 CodexQuest.updateNodes = false
@@ -68,13 +69,6 @@ CodexQuest:SetScript("OnEvent", function(self, event, ...)
         -- end
 
     elseif (event == "QUEST_DETAIL") then
-		if not CCTip then
-			CCTip = QuestNpcNameFrame:CreateFontString("CCTip", "ARTWORK", "GameFontHighlight")
-			CCTip:SetWidth(288)
-			CCTip:SetHeight(55)
-			CCTip:SetText("任务助手：打开任务日志(L)\nshift+左键追踪显示任务提示");
-			CCTip:SetPoint("TOPLEFT", QuestFrame, "TOPLEFT", 55, -30);
-		end
         if not CodexConfig.autoAccept or IsControlKeyDown() then
             return
         end
@@ -112,7 +106,7 @@ CodexQuest:SetScript("OnEvent", function(self, event, ...)
                 for questLogId = 1, 40 do
                     local title, _, _, header, _, complete = GetQuestLogTitle(questLogId)
 
-                    if GetActiveTitle(index) == title and complete == 1 then
+                    if not header and GetActiveTitle(index) == title and complete == 1 then
                         SelectActiveQuest(index)
                     end
                 end
@@ -146,7 +140,7 @@ CodexQuest:SetScript("OnUpdate", function()
     end
     
     if CodexQuest.updateQuestGivers == true then
-        if CodexConfig.allQuestGivers then
+        if CodexConfig.allQuestGivers and CodexConfig.trackingMethod ~= 4 then
             local meta = {["addon"] = "CODEX"}
             CodexDatabase:SearchQuests(meta)
             CodexQuest.updateNodes = true
@@ -165,18 +159,20 @@ function CodexQuest:UpdateQuestLog()
 
     local _, numQuests = GetNumQuestLogEntries()
     local found = 0
+    local quests = CodexDB.quests.loc
 
     -- iterate over all quests
     for questLogId = 1, 40 do
-        local title, _, _, header, _, complete = GetQuestLogTitle(questLogId)
+        local _, _, _, header, _, complete, _, questId = GetQuestLogTitle(questLogId)
         local objectives = GetNumQuestLeaderBoards(questLogId)
         local watched = IsQuestWatched(questLogId)
 
-        if title and not header then
+        if not header and quests[questId] then
+            local title = quests[questId].T
+
             -- add new quest to the quest log
             if not CodexQuest.questLog[title] then
-                local questId = CodexDatabase:GetQuestIds(questLogId)
-                CodexQuest.questLogTemp[title] = {ids = questId, questLogId = questLogId, state = "init"}
+                CodexQuest.questLogTemp[title] = {ids = {questId}, questLogId = questLogId, state = "init"}
 
             elseif CodexQuest.questLog[title].questLogId ~= questLogId then
                 CodexQuest.questLogTemp[title] = {ids = CodexQuest.questLog[title].ids, questLogId = questLogId, state = CodexQuest.questLog[title].state}
@@ -189,9 +185,14 @@ function CodexQuest:UpdateQuestLog()
                 local state = watched and "trck" or ""
                 for i=1, objectives do
                     local text, _,  done = GetQuestLogLeaderBoard(i, questLogId)
-                    local _, _, obj, objNum, objNeeded = strfind(text, "(.*)：%s*([%d]+)%s*/%s*([%d]+)")
-                    if obj then
-                        state = state .. i .. (((objNum + 0 >= objNeeded + 0) or done) and "done" or "todo")
+                    -- sometimes you got nil and nil, just like the quest 1149 (Test of Faith)
+                    if text then
+                        -- Different languages use different separators in the quest state line,
+                        -- so the regular expression needs to be localized.
+                        local _, _, obj, objNum, objNeeded = strfind(text, L["QUEST_STATE_SPLIT_REGEXP"])
+                        if obj then
+                            state = state .. i .. (((objNum + 0 >= objNeeded + 0) or done) and "done" or "todo")
+                        end
                     end
                 end
                 CodexQuest.questLogTemp[title].state = state
@@ -218,17 +219,6 @@ function CodexQuest:UpdateQuestLog()
         if not CodexQuest.questLogTemp[title] then
             CodexMap:DeleteNode("CODEX", title)
             CodexQuest.updateNodes = true
-
-            for _, questId in pairs(CodexQuest.questLog[title].ids) do
-                -- Add to history
-                if title == CodexQuest.abandon then
-                    CodexHistory[questId] = nil
-                else
-                    CodexHistory[questId] = true
-                end
-            end
-
-            CodexQuest.abandon = ""
             CodexQuest.updateQuestGivers = true
         end
     end
@@ -254,6 +244,7 @@ function CodexQuest:UpdateQuestLog()
 end
 
 -- Force reset
+-- Please keep the interface stable. Other addons may add a Reset button through this function.
 function CodexQuest:ResetAll()
     CodexMap.DeleteNode("CODEX")
     CodexQuest.questLog = {}
@@ -262,26 +253,27 @@ function CodexQuest:ResetAll()
     CodexQuest.updateNodes = true
 end
 
+-- Display the selected quest in the quest log
+-- Please keep the interface stable. Other addons may add a Show button through this function.
 function CodexQuest:ShowCurrentQuest()
     local questIndex = GetQuestLogSelection()
-    local title, _, _, header, _, complete = GetQuestLogTitle(questIndex)
+    local _, _, _, header, _, _, _, questId = GetQuestLogTitle(questIndex)
     if header then return end
 
-    local ids = CodexQuest.questLog[title].ids
     local maps, meta = {}, {["addon"] = "CODEX", ["questLogId"] = questIndex}
-    for _, id in pairs(ids) do
-        maps = CodexDatabase:SearchQuestById(id, meta, maps)
-    end
-
+    maps = CodexDatabase:SearchQuestById(questId, meta, maps)
     CodexMap:ShowMapId(CodexDatabase:GetBestMap(maps))
 end
 
+-- Hide the selected quest in the quest log
+-- Please keep the interface stable. Other addons may add a Hide button through this function.
 function CodexQuest:HideCurrentQuest()
+	local quests = CodexDB.quests.loc
     local questIndex = GetQuestLogSelection()
-    local title, _, _, header, _, complete = GetQuestLogTitle(questIndex)
-    if header then return end
+    local _, _, _, header, _, complete, _, questId = GetQuestLogTitle(questIndex)
+    if header or not quests[questId] then return end
 
-    CodexMap:DeleteNode("CODEX", title)
+    CodexMap:DeleteNode("CODEX", quests[questId].T)
     CodexMap:UpdateNodes()
 end
 
@@ -295,7 +287,7 @@ function CodexQuest:AddQuestLogIntegration()
     CodexQuest.buttonShow = CodexQuest.buttonShow or CreateFrame("Button", "CodexQuestShow", dockFrame, "UIPanelButtonTemplate")
     CodexQuest.buttonShow:SetWidth(70)
     CodexQuest.buttonShow:SetHeight(20)
-    CodexQuest.buttonShow:SetText("显示")
+    CodexQuest.buttonShow:SetText(L["Show"])
     CodexQuest.buttonShow:SetPoint("TOP", dockTitle, "TOP", -110, 0)
     CodexQuest.buttonShow:SetScript("OnClick", function()
         CodexQuest:ShowCurrentQuest()
@@ -304,7 +296,7 @@ function CodexQuest:AddQuestLogIntegration()
     CodexQuest.buttonHide = CodexQuest.buttonHide or CreateFrame("Button", "CodexQuestHide", dockFrame, "UIPanelButtonTemplate")
     CodexQuest.buttonHide:SetWidth(70)
     CodexQuest.buttonHide:SetHeight(20)
-    CodexQuest.buttonHide:SetText("隐藏")
+    CodexQuest.buttonHide:SetText(L["Hide"])
     CodexQuest.buttonHide:SetPoint("TOP", dockTitle, "TOP", -37, 0)
     CodexQuest.buttonHide:SetScript("OnClick", function()
         CodexQuest:HideCurrentQuest()
@@ -323,7 +315,7 @@ function CodexQuest:AddQuestLogIntegration()
     CodexQuest.buttonReset = CodexQuest.buttonReset or CreateFrame("Button", "CodexQuestReset", dockFrame, "UIPanelButtonTemplate")
     CodexQuest.buttonReset:SetWidth(70)
     CodexQuest.buttonReset:SetHeight(20)
-    CodexQuest.buttonReset:SetText("重置")
+    CodexQuest.buttonReset:SetText(L["Reset"])
     CodexQuest.buttonReset:SetPoint("TOP", dockTitle, "TOP", 37, 0)
     CodexQuest.buttonReset:SetScript("OnClick", function()
         CodexQuest:ResetAll()
@@ -345,7 +337,7 @@ function CodexQuest:AddWorldMapIntegration()
     function CodexQuest.mapButton:updateMenu()
         local function CreateEntries()
             local info = {}
-            info.text = "显示所有任务"
+            info.text = L["All Quests"]
             info.checked = false
             info.func = function(self)
                 UIDropDownMenu_SetSelectedID(CodexQuest.mapButton, self:GetID(), 0)
@@ -355,7 +347,7 @@ function CodexQuest:AddWorldMapIntegration()
             UIDropDownMenu_AddButton(info)
 
             local info = {}
-            info.text = "显示追踪的任务"
+            info.text = L["Tracked Quests"]
             info.checked = false
             info.func = function(self)
                 UIDropDownMenu_SetSelectedID(CodexQuest.mapButton, self:GetID(), 0)
@@ -365,7 +357,7 @@ function CodexQuest:AddWorldMapIntegration()
             UIDropDownMenu_AddButton(info)
 
             local info = {}
-            info.text = "显示手动选择的任务"
+            info.text = L["Manual Selection"]
             info.checked = false
             info.func = function(self)
                 UIDropDownMenu_SetSelectedID(CodexQuest.mapButton, self:GetID(), 0)
@@ -375,7 +367,7 @@ function CodexQuest:AddWorldMapIntegration()
             UIDropDownMenu_AddButton(info)
 
             local info = {}
-            info.text = "不显示任务"
+            info.text = L["Hide Quests"]
             info.checked = false
             info.func = function(self)
                 UIDropDownMenu_SetSelectedID(CodexQuest.mapButton, self:GetID(), 0)
@@ -393,6 +385,9 @@ function CodexQuest:AddWorldMapIntegration()
     end
 end
 
+
+
+
 function CodexQuest:CheckNamePlate()
 	if IsInInstance() then return end
     local something = WorldFrame:GetNumChildren()
@@ -400,7 +395,7 @@ function CodexQuest:CheckNamePlate()
     local plateList = {}
     for index = 1, something do
         local frame = select(index, WorldFrame:GetChildren())
-        if frame:GetName() and frame:GetName():find("NamePlate%d") and not frame.skinned then
+        if frame and frame:GetName() and frame:GetName():find("NamePlate%d") and not frame.skinned then
             frame.skinned = 1
             frame.icon = CreateFrame("Frame", nil, frame)
             frame.icon:SetFrameStrata("HIGH")
@@ -433,10 +428,14 @@ end
 local CodexHookRemoveQuestWatch = RemoveQuestWatch
 RemoveQuestWatch = function(questIndex)
     local ret = CodexHookRemoveQuestWatch(questIndex)
-    local title, _, _, header, _, complete = GetQuestLogTitle(questIndex)
-    CodexMap:DeleteNode("CODEX", title)
-    CodexQuest.updateQuestLog = true
-    CodexQuest.updateQuestGivers = true
+    
+	local quests = CodexDB.quests.loc
+    local _, _, _, header, _, complete, _, questId = GetQuestLogTitle(questIndex)
+    if not header and quests[questId] then
+        CodexMap:DeleteNode("CODEX", quests[questId].T)
+        CodexQuest.updateQuestLog = true
+        CodexQuest.updateQuestGivers = true
+    end
 
     return ret
 end
@@ -448,10 +447,4 @@ AddQuestWatch = function(questIndex)
     CodexQuest.updateQuestGivers = true
 
     return re
-end
-
-local CodexHookAbandonQuest = AbandonQuest
-AbandonQuest = function()
-    CodexQuest.abandon = GetAbandonQuestName()
-    CodexHookAbandonQuest()
 end

@@ -95,7 +95,7 @@ function RaidToolkitConfigFunc()
 			BigFoot_LoadAddOn("Recount");
 			BigFoot_DelayCall(function ()
 				SlashCmdList["ACECONSOLE_RECOUNT"]("show")
-			end,0.1)
+			end,1)
 		end
 	end
 

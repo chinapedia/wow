@@ -1207,7 +1207,7 @@ function DCT_Format(str,colorEx)
 					end
 				end
 			elseif param == "sn" then
-				if dct_spellName then
+				if dct_spellName and type(dct_spellName)=='string' then
 					if dct_ssc_spell and DCT_SPELLSCHOOL_TRAN[dct_spellSchool] then
 						out = out..DCT_SpellSchoolColor(dct_spellSchool,dct_spellName)
 					else

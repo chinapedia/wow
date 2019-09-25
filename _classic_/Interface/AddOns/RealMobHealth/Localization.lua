@@ -46,43 +46,79 @@ local Localization={
 --		Numbers
 		NumberGroupingScale=3;--	Controls scale of FIRST_NUMBER_CAP and SECOND_NUMBER_CAP
 	};
-	deDE={--	Translation by Figlmueller
+	esES={--	Translation by Lynk_One
 --		Commands
-		Command_NoUnitData="Einheit nicht gefunden.";
-		Command_DeletedUnitFormat="%2$s(%1$s) gel�scht";--	format(CreatureKey,UnitName)
-		Command_HealthWiped="Gesundheitspunkte gel�scht.";
+		Command_NoUnitData="No se encuentra la unidad.";
+		Command_DeletedUnitFormat="Borrado %2$s(%1$s)";--	format(CreatureKey,UnitName)
+		Command_HealthWiped="Datos de vida borrados.";
 
 --		Options Panel
 		Options_DynamicList={--	Button Text,Tooltip Title,Description
 --					Tooltip Title=false to use Button Text
-			ShowStatusBarTextAdditions={"Text im Fenster der Zielauswahl anzeigen",false,"Erstellt einen Text innerhalb der Statusleisten der Zielauswahl."};
-			ModifyHealthBarText={"Gesundheitspunkte des Einheitenfensters anpassen",false,"Zeigt errechnete Gesundheitspunkte f�r Mobs in normalen Einheitenfenstern."};
-			ShowTooltipText={"Feedback-Tooltip anzeigen",false,"Zeigt an, ob die Gesundheitspunkte eines Mobs im Health-Cache vorhanden sind."};
-			ShowTooltipHealthText={"Gesundheitspunkte-Tooltip anzeigen",false,"Zeigt die Gesundheitspunkte in der Statusleiste der Spieletooltips an."};
-			ShowNamePlateHealthText={"Gesundheitspunkte auf Namensplaketten anzeigen",false,"Gesundheitspunkte links von Namensplaketten anzeigen."};
+			ShowStatusBarTextAdditions={"Mostrar texto en el Marco del Objetivo",false,"Crea un texto para las barras del marco del objetivo."};
+			ModifyHealthBarText={"Modificar vida en los marcos de unidad",false,"Muestra valores reales de salud de criaturas en los marcos de unidad por defecto."};
+			ShowTooltipText={"Mostrar Feedback en Tooltip",false,"Muestra si la salud de la criatura se encuentra en caché."};
+			ShowTooltipHealthText={"Mostrar Salud en el Tooltip",false,"Muestra la salud en el Tooltip del juego."};
+			ShowNamePlateHealthText={"Mostrar vida en las Placas de Nombres",false,"Muestra la vida en el lado izquierdo de las Placas de Nombres."};
 
-			EnablePeerCache={"Aktivieren","Peer-Cache aktivieren","Ausw�hlen um Gesundheitspunkte-Daten von anderen Spielern zu empfangen.\n|cffffff00Hinweis: Dieses Addon wird dennoch Anfragen anderer Spieler beantworten sowie Broadcasts an Spieler schicken.|r"};
+			EnablePeerCache={"Activar","Activar caché de pares","Activas recibir información de salud de otros.\n|cffffff00Nota: Este addon continuará contestando consultas y emitiendo actualizaciones de salud.|r"};
 		};
-		Options_SetByAddOn="|cffff0000Diese Option wurde von einem anderen Addon �berschrieben.|r";
+		Options_SetByAddOn="|cffff0000Esta opción ha sido anulada por otro addon.|r";
 
 --		Options Cache Panels
-		Options_HealthCachePanel={"Health-Cache","Speichert Gesundheitspunkte-Daten von begegneten Mobs."};
-		Options_PeerCachePanel={"Peer-Cache","Speichert Gesundheitspunkte-Daten, welche von anderen Spielern gemeldet wurden."};
-		Options_CacheSizeLabel="Cache-Gr��e:";
+		Options_HealthCachePanel={"Caché de Salud","Guarda datos de salud de las criaturas encontradas."};
+		Options_PeerCachePanel={"Caché de àres","Guarda datos de salud reportados por otros."};
+		Options_CacheSizeLabel="Caché de pares:";
 
 --		Options Clear Cache Buttons
-		Options_ClearCacheButtonText="Cache leeren";
-		Options_ClearHealthCacheTTText="Health-Cache leeren";
-		Options_ClearPeerCacheTTText="Peer-Cache leeren";
-		Options_ClearCacheWarning="|cffff0000Achtung! Alle Daten in diesem Cache gehen endg�ltig verloren.|r";
+		Options_ClearCacheButtonText="Limpiar Caché";
+		Options_ClearHealthCacheTTText="Limpia la Caché de salud";
+		Options_ClearPeerCacheTTText="Limpiar la Caché de pares";
+		Options_ClearCacheWarning="|cffff0000Atención! Todos los datos de esta caché se perderán para siempre.|r";
 
 --		UITweaks Tooltip Lines
-		UITweaksTooltip_Blacklisted="Ignorierter Mob";
-		UITweaksTooltip_HealthRecorded="Gesundheitspunkte-Daten vorhanden";
-		UITweaksTooltip_HealthOverride="Gesundheitspunkte-Daten �berschrieben";
-		UITweaksTooltip_NoData="Fehlende Gesundheitspunkte-Daten";
+		UITweaksTooltip_Blacklisted="Lista negra de criaturas";
+		UITweaksTooltip_HealthRecorded="Datos de salud Guardados";
+		UITweaksTooltip_HealthOverride="Health Data Overridden";
+		UITweaksTooltip_NoData="No hay datos de Salud";
 	};
-	frFR={--	Traduction by Pgmbru
+	deDE={--	Translation by Figlmueller (Revised by Dathwada)
+--		Commands
+		Command_NoUnitData="keine Einheit gefunden.";
+		Command_DeletedUnitFormat="%2$s(%1$s) gelöscht";-- format(CreatureKey,UnitName)
+		Command_HealthWiped="Alle aufgezeichneten Gesundheitsdaten wurden gelöscht.";
+
+--		Options Panel
+		Options_DynamicList={--	Button Text,Tooltip Title,Description
+--				Tooltip Title=false to use Button Text
+			ShowStatusBarTextAdditions={"Zeige Text im Zielfenster",false,"Erstellt Text für das Zielfenster."};
+			ModifyHealthBarText={"Ändere den Gesundheitszustand im Einheitenfenster",false,"Zeigt reale Gesundheitswerte für Mobs in Standard-Einheitenfenster an."};
+			ShowTooltipText={"Zeige Feedback im Tooltip",false,"Zeigt an, ob die Gesundheit eines Mobs im Gesundheits-Cache vorhanden ist."};
+			ShowTooltipHealthText={"Zeige den Gesundheitszustand im Tooltip",false,"Zeigt den Zustand in der Statusleiste von GameTooltip an."};
+			ShowNamePlateHealthText={"Zeige den Gesundheitszustand an Namensplaketten",false,"Zeigt den Gesundheitszustand auf der linken Seite der Namensplaketten an."};
+
+			EnablePeerCache={"Aktivieren","Aktiviere Peer-Cache","Schaltet den Empfang von Gesundheitsdaten anderer ein.\n|cffffff00Hinweis: Dieses Addon beantwortet weiterhin Anfragen und sendet Statusaktualisierungen.|r"};
+		};
+		Options_SetByAddOn="|cffff0000Diese Option wurde von einem anderen Addon überschrieben.|r";
+
+--		Options Cache Panels
+		Options_HealthCachePanel={"Gesundheits-Cache","Speichert Gesundheitsdaten von bekämpften Mobs."};
+		Options_PeerCachePanel={"Peer-Cache","Speichert von anderen gemeldete Gesundheitsdaten."};
+		Options_CacheSizeLabel="Cache größe:";
+
+--		Options Clear Cache Buttons
+		Options_ClearCacheButtonText="Lösche Cache";
+		Options_ClearHealthCacheTTText="Lösche Gesundheits-Cache";
+		Options_ClearPeerCacheTTText="Lösche Peer-Cache";
+		Options_ClearCacheWarning="|cffff0000Warnung! Alle Daten in diesem Cache gehen für immer verloren.|r";
+
+--		UITweaks Tooltip Lines
+		UITweaksTooltip_Blacklisted="Mob ist auf der schwarzen Liste";
+		UITweaksTooltip_HealthRecorded="Aufgezeichnete Gesundheitsdaten";
+		UITweaksTooltip_HealthOverride="Gesundheitsdaten überschrieben";
+		UITweaksTooltip_NoData="Fehlende Gesundheitsdaten";
+	};
+	frFR={--	Translation by Pgmbru
 --		Commandes
 		Command_NoUnitData="Unité introuvable.";
 		Command_DeletedUnitFormat="Supprimé %2$s(%1$s)";-- format (CreatureKey,UnitName)
@@ -154,6 +190,42 @@ local Localization={
 
 --		Numbers
 		NumberGroupingScale=4;--	Controls scale of FIRST_NUMBER_CAP and SECOND_NUMBER_CAP
+	};
+	ruRU={--	Translation by vAlshebnik
+--		Commands
+		Command_NoUnitData="Юнит не найден";
+		Command_DeletedUnitFormat="Удален юнит %2$s(%1$s)";--	format(CreatureKey,UnitName)
+		Command_HealthWiped="Данные здоровья удалены.";
+ 
+--		Options Panel
+		Options_DynamicList={--	Button Text,Tooltip Title,Description
+--				Tooltip Title=false to use Button Text
+			ShowStatusBarTextAdditions={"Показывать текст на рамке цели",false,"Создает текст для полоски здоровья на рамке цели."};
+			ModifyHealthBarText={"Изменять здоровье на рамке цели",false,"Показывает реальные значения здоровья на рамке цели."};
+			ShowTooltipText={"Показывать состояние в подсказке",false,"Показывает, есть ли здоровье моба в кэше здоровья."};
+			ShowTooltipHealthText={"Показывать здоровье в подсказке",false,"Показывает здоровье цели на полоске здоровья в подсказке."};
+			ShowNamePlateHealthText={"Показывать здоровье на шкале здоровья",false,"Показывает текущее здоровье цели на левой стороне шкалы здоровья."};
+
+			EnablePeerCache={"Включить","Включить Кэш Пиров","Вкл/Выкл получение информации о здоровье мобов от других игроков.\n|cffffff00Примечание: Этот аддон все равно будет передавать новые данные о здоровье мобов другим игрокам.|r"};
+		};
+		Options_SetByAddOn="|cffff0000Эта опция была перезаписана другим аддоном.|r";
+ 
+--		Options Cache Panels
+		Options_HealthCachePanel={"Кэш Здоровья","Хранит информацию о здоровье известных вам мобов."};
+		Options_PeerCachePanel={"Кэш Пиров","Хранит информацию о здоровье, сообщенную другими игроками."};
+		Options_CacheSizeLabel="Размер кэша:";
+
+--		Options Clear Cache Buttons
+		Options_ClearCacheButtonText="Очистить Кэш";
+		Options_ClearHealthCacheTTText="Очистить Кэш Здоровья";
+		Options_ClearPeerCacheTTText="Очистить Кэш Пиров";
+		Options_ClearCacheWarning="|cffff0000Внимание! Все данные в этом кэше будут потеряны навсегда.|r";
+
+--		UITweaks Tooltip Lines
+		UITweaksTooltip_Blacklisted="Моб в черном списке";
+		UITweaksTooltip_HealthRecorded="Записаны данные здоровья";
+		UITweaksTooltip_HealthOverride="Данные о здоровье перезаписаны";
+		UITweaksTooltip_NoData="Нет данных о здоровье";
 	};
 	zhCN={--	Translation by HopeASD
 		Command_NoUnitData="单位未找到";
